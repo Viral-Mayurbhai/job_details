@@ -24,6 +24,7 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController? jobDescription;
   List<String> jobDesigna = [];
   String jobDesignationStr = '';
+  final _formKey = GlobalKey<FormState>();
 
   // Future<void> apiCalling() async {
   //   try {
@@ -54,6 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
         for(int i=0; i<jobList.length; i++) {
           jobDesigna.add(jobList[i].designation);
         }
+        jobDesignationStr = jobDesigna[0];
       });
     });
   }
@@ -98,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(height: 10,),
                   DropdownSearch(
-                    // selectedItem: jobDesigna[0],
+                    selectedItem: jobDesignationStr,
                     showSelectedItems: true,
                     items: jobDesigna,
                     showSearchBox: true,
@@ -111,52 +113,78 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
 
-            Container(
-              margin: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Description Yourself",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+            Form(
+              key: _formKey,
+              child: Container(
+                margin: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Description Yourself",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8.0,),
-                  TextFormField(
-                    controller: jobDescription,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: 4,
-                    style: const TextStyle(
-                      fontSize: 18,
-                    ),
-                    decoration: InputDecoration(
-                      // hoverColor: Colors.white,
-                      // fillColor: Colors.white,
-                      enabledBorder: OutlineInputBorder(
+                    const SizedBox(height: 8.0,),
+                    TextFormField(
+                      controller: jobDescription,
+                      keyboardType: TextInputType.multiline,
+                      maxLines: 4,
+                      style: const TextStyle(
+                        fontSize: 18,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text';
+                        } else if (value.length < 15) {
+                          return "Please fill more then 15 char.";
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        // hoverColor: Colors.white,
+                        // fillColor: Colors.white,
+                        enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20.0),
                           borderSide: BorderSide(
                             color: Colors.blue.withOpacity(0.2),
                             width: 2,
                           ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: const BorderSide(
-                          color: Colors.blue,
-                          width: 2,
                         ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                          borderSide: const BorderSide(
+                            color: Colors.blue,
+                            width: 2,
+                          ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                          borderSide: const BorderSide(
+                            color: Colors.blue,
+                            width: 2,
+                          ),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                          borderSide: const BorderSide(
+                            color: Colors.red,
+                            width: 2,
+                          ),
+                        ),
+                        // focusColor: bhagwa,
+                        counterText: "${200 - jobDescription!.text.length}/200",
                       ),
-                      // focusColor: bhagwa,
-                      counterText: "${200 - jobDescription!.text.length}/200",
+                      maxLength: 200,
                     ),
-                    maxLength: 200,
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
+              ),
             ),
+
 
             const SizedBox(height: 40.0,),
 
@@ -168,10 +196,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 minWidth: MediaQuery.of(context).size.width,
                 colorBrightness: Brightness.dark,
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Submitted!")),
-                  );
-                  print(jobDescription!.text);
+                  if(_formKey.currentState!.validate() && jobDesignationStr!="" && jobDesignationStr!=null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Submitted!")),
+                    );
+                    print(jobDescription!.text);
+                  }
                 },
                 child: const Text('SUBMIT',style: TextStyle(fontSize: 20.0),),
               ),
